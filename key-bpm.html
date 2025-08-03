@@ -1,1 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Key & BPM Finder | AudioSplit</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --neon-blue: #00ffff;
+      --neon-pink: #ff00cc;
+      --dark-bg: #0a0a0a;
+      --glow: 0 0 10px var(--neon-blue);
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--dark-bg);
+      font-family: Orbitron, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: black;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--neon-blue);
+    }
+
+    nav a {
+      margin: 0 1rem;
+      color: var(--neon-blue);
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--neon-pink);
+      text-shadow: var(--glow);
+    }
+
+    h1 {
+      color: var(--neon-pink);
+      text-shadow: 0 0 20px var(--neon-pink);
+      margin-top: 2rem;
+      font-size: 2.5rem;
+    }
+
+    .upload-area {
+      margin-top: 2rem;
+      padding: 2rem;
+      border: 2px dashed var(--neon-blue);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      margin-top: 1rem;
+      color: white;
+    }
+
+    #results {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      color: var(--neon-blue);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="vocal-remover.html">Vocal Remover</a>
+      <a href="splitter.html">Splitter</a>
+      <a href="key-bpm.html">Key & BPM</a>
+      <a href="audio-cutter.html">Cutter</a>
+      <a href="audio-joiner.html">Joiner</a>
+      <a href="karaoke.html">Karaoke</a>
+    </nav>
+  </header>
+
+  <h1>Key & BPM Finder</h1>
+
+  <div class="upload-area">
+    <label for="audioFile">Upload a song to analyze Key & BPM:</label><br>
+    <input type="file" id="audioFile" accept="audio/*" />
+  </div>
+
+  <div id="results">
+    <p><strong>BPM:</strong> <span id="bpmResult">---</span></p>
+    <p><strong>Key:</strong> <span id="keyResult">---</span></p>
+  </div>
+
+  <!-- MusicTempo + Pitchfinder -->
+  <script src="https://unpkg.com/musictempo"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pitchfinder@1.2.3/dist/pitchfinder.min.js"></script>
+  <script>
+    const audioInput = document.getElementById("audioFile");
+    const bpmResult = document.getElementById("bpmResult");
+    const keyResult = document.getElementById("keyResult");
+
+    audioInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+      const rawData = audioBuffer.getChannelData(0);
+      const bufferSize = 1024;
+      const data = [];
+
+      for (let i = 0; i < rawData.length; i += bufferSize) {
+        data.push(rawData[i]);
+      }
+
+      // Calculate BPM
+      const mt = new MusicTempo(data);
+      bpmResult.textContent = Math.round(mt.tempo);
+
+      // Estimate Pitch using Pitchfinder
+      const detectPitch = Pitchfinder.YIN();
+      const pitch = detectPitch(rawData);
+      keyResult.textContent = pitch ? frequencyToKey(pitch) : "Undetected";
+    });
+
+    function frequencyToKey(freq) {
+      const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const noteIndex = Math.round(12 * (Math.log2(freq / 440))) + 69;
+      const octave = Math.floor(noteIndex / 12) - 1;
+      const note = notes[noteIndex % 12];
+      return `${note}${octave}`;
+    }
+  </script>
+</body>
+</html>
 
