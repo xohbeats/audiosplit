@@ -3,50 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Splitter AI</title>
+  <title>AudioSplit - Vocal Remover & Isolation</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <nav class="navbar">
+    <h1>AudioSplit</h1>
+    <nav>
       <ul>
-        <li><a href="index.html">Vocal Remover</a></li>
-        <li><a href="splitter.html" class="active">Splitter AI</a></li>
-        <li><a href="key-bpm.html">Key & BPM Finder</a></li>
+        <li><a href="index.html" class="active">Vocal Remover & Isolation</a></li>
+        <li><a href="splitter.html">AudioSplit AI</a></li>
+        <li><a href="keyfinder.html">Song Key & BPM Finder</a></li>
         <li><a href="cutter.html">Audio Cutter</a></li>
         <li><a href="joiner.html">Audio Joiner</a></li>
-        <li><a href="karaoke.html">Karaoke</a></li>
+        <li><a href="karaoke.html">Karaoke + Recorder</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="content">
-    <h1>Splitter AI</h1>
-    <p>Split music into separated parts with AI-Powered algorithms. Upload a file to get started.</p>
-    <div class="upload-area">
-      <label for="fileUpload" class="upload-label">Browse Files or Drag & Drop</label>
-      <input type="file" id="fileUpload" accept="audio/*" />
-    </div>
+  <main>
+    <section class="upload-section">
+      <h2>Separate Voice from Music</h2>
+      <p>Upload your song and our AI will split vocals from instruments.</p>
+
+      <div class="upload-box" id="drop-area">
+        <form id="uploadForm">
+          <input type="file" id="fileElem" accept="audio/*" hidden />
+          <label class="upload-btn" for="fileElem">Browse Files</label>
+        </form>
+        <p>or drag & drop your audio file here</p>
+      </div>
+    </section>
   </main>
 
+  <footer>
+    <p>&copy; 2025 AudioSplit. All rights reserved.</p>
+  </footer>
+
   <script>
-    const uploadArea = document.querySelector('.upload-area');
-    const inputFile = document.getElementById('fileUpload');
+    const dropArea = document.getElementById('drop-area');
+    const fileElem = document.getElementById('fileElem');
 
-    uploadArea.addEventListener('dragover', (e) => {
+    dropArea.addEventListener('dragover', (e) => {
       e.preventDefault();
-      uploadArea.classList.add('dragover');
+      dropArea.classList.add('highlight');
     });
 
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragover');
+    dropArea.addEventListener('dragleave', () => {
+      dropArea.classList.remove('highlight');
     });
 
-    uploadArea.addEventListener('drop', (e) => {
+    dropArea.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadArea.classList.remove('dragover');
-      inputFile.files = e.dataTransfer.files;
+      dropArea.classList.remove('highlight');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFiles(files);
+      }
     });
+
+    fileElem.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    function handleFiles(files) {
+      const file = files[0];
+      alert(`Selected file: ${file.name}`);
+      // Future: Add upload logic here
+    }
   </script>
 </body>
 </html>
