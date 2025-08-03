@@ -141,8 +141,7 @@
                             <div class="py-2">
                                 <span class="text-gray-400">or</span>
                             </div>
-                            <!-- **FIX**: Using a proper <label> for robust file input clicking -->
-                            <label for="file-upload" class="cursor-pointer btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
+                            <label id="browse-files-label" for="file-upload" class="cursor-pointer btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
                                 Browse Files
                             </label>
                             <input id="file-upload" type="file" class="hidden" accept="audio/*">
@@ -313,6 +312,7 @@
             const fileNameDisplay = document.getElementById('file-name-display');
             const startProcessingBtn = document.getElementById('start-processing-btn');
             const changeFileBtn = document.getElementById('change-file-btn');
+            const browseFilesLabel = document.getElementById('browse-files-label');
             
             // --- Navigation Logic ---
             function switchTool(toolKey) {
