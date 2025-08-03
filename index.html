@@ -40,9 +40,11 @@
         }
         .upload-area {
             transition: all 0.3s ease-in-out;
+            cursor: pointer;
         }
         .upload-area.drag-over {
             border-color: #4f46e5;
+            background-color: #f0f2fe;
             transform: scale(1.02);
             box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
         }
@@ -128,23 +130,21 @@
                     Powerful and free online tool to isolate vocals or instruments from any song using advanced AI.
                 </p>
 
-                <!-- Upload Area -->
+                <!-- Upload Area - REBUILT WITH USER'S PROVIDED LOGIC -->
                 <div id="upload-area" class="mt-12 max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 border-2 border-dashed border-gray-300">
+                    <!-- This input is now controlled by the container div -->
+                    <input id="file-upload" type="file" class="hidden" accept="audio/*">
+                    
                     <!-- Initial View -->
                     <div id="initial-upload-view">
-                        <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="flex flex-col items-center justify-center space-y-4 pointer-events-none">
                             <div class="p-4 rounded-full secondary-accent-bg">
                                 <i data-feather="upload-cloud" class="h-10 w-10 secondary-accent-text"></i>
                             </div>
-                            <p class="text-lg font-semibold text-gray-700">Drag & Drop Your Audio File Here</p>
+                            <p class="text-lg font-semibold text-gray-700">
+                                <strong class="primary-accent-text">Click to Browse</strong> or Drag & Drop
+                            </p>
                             <p class="text-gray-500">MP3, WAV, FLAC, M4A - Max 50MB</p>
-                            <div class="py-2">
-                                <span class="text-gray-400">or</span>
-                            </div>
-                            <label id="browse-files-label" for="file-upload" class="cursor-pointer btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
-                                Browse Files
-                            </label>
-                            <input id="file-upload" type="file" class="hidden" accept="audio/*">
                         </div>
                     </div>
                     <!-- File Selected View -->
@@ -312,7 +312,6 @@
             const fileNameDisplay = document.getElementById('file-name-display');
             const startProcessingBtn = document.getElementById('start-processing-btn');
             const changeFileBtn = document.getElementById('change-file-btn');
-            const browseFilesLabel = document.getElementById('browse-files-label');
             
             // --- Navigation Logic ---
             function switchTool(toolKey) {
@@ -367,7 +366,48 @@
                 });
             });
 
-            // --- File Handling & Processing Simulation ---
+            // --- NEW, ROBUST UPLOAD LOGIC ---
+            
+            // Open file dialog on click
+            uploadArea.addEventListener("click", (e) => {
+                // Stop the click from propagating to buttons inside the 'file-selected-view'
+                if (e.target.id === 'start-processing-btn' || e.target.id === 'change-file-btn') {
+                    return;
+                }
+                fileUploadInput.click()
+            });
+
+            // Handle file selection from dialog
+            fileUploadInput.addEventListener("change", () => {
+                if (fileUploadInput.files.length > 0) {
+                    handleFiles(fileUploadInput.files);
+                }
+            });
+
+            // Add drag-over styling
+            uploadArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadArea.classList.add("drag-over");
+            });
+
+            uploadArea.addEventListener("dragleave", () => {
+                uploadArea.classList.remove("drag-over");
+            });
+
+            // Handle dropped files
+            uploadArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove("drag-over");
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith("audio/")) {
+                    fileUploadInput.files = files; // Sync the dropped file with the input
+                    handleFiles(files);
+                } else {
+                    alert("Please drop a valid audio file.");
+                }
+            });
+
+            // --- App Flow Logic ---
             function handleFiles(files) {
                 if (files.length > 0) {
                     fileNameDisplay.textContent = files[0].name;
@@ -411,27 +451,11 @@
             
             startProcessingBtn.addEventListener('click', startProcessing);
             
-            // This button now re-triggers the file input by its ID
             changeFileBtn.addEventListener('click', () => {
                 fileUploadInput.click(); 
             });
             
             document.getElementById('start-over-btn').addEventListener('click', resetToUploadView);
-
-            // Drag and Drop Listeners
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
-                document.body.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
-            });
-            uploadArea.addEventListener('dragenter', () => uploadArea.classList.add('drag-over'));
-            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-            uploadArea.addEventListener('drop', (e) => {
-                uploadArea.classList.remove('drag-over');
-                handleFiles(e.dataTransfer.files);
-            });
-            
-            // Listener for the actual file input element
-            fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
             // --- Hero Section Waveform Animation ---
             const canvas = document.getElementById('waveform-canvas');
