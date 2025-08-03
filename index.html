@@ -141,12 +141,12 @@
                             <div class="py-2">
                                 <span class="text-gray-400">or</span>
                             </div>
-                            <label for="file-upload" class="cursor-pointer">
-                                <span class="btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
+                            <div class="cursor-pointer">
+                                <span id="browse-files-span" class="btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
                                     Browse Files
                                 </span>
                                 <input id="file-upload" type="file" class="hidden" accept="audio/*">
-                            </label>
+                            </div>
                         </div>
                     </div>
                     <!-- File Selected View -->
@@ -313,6 +313,7 @@
         const fileNameDisplay = document.getElementById('file-name-display');
         const startProcessingBtn = document.getElementById('start-processing-btn');
         const changeFileBtn = document.getElementById('change-file-btn');
+        const browseFilesSpan = document.getElementById('browse-files-span');
         
         // --- Navigation Logic ---
         function switchTool(toolKey) {
@@ -410,6 +411,11 @@
         }
         
         startProcessingBtn.addEventListener('click', startProcessing);
+        
+        // **FIX**: Add direct click listener for robust file dialog opening
+        browseFilesSpan.addEventListener('click', () => {
+            fileUploadInput.click();
+        });
 
         changeFileBtn.addEventListener('click', () => {
             fileUploadInput.click(); // Re-open file dialog
