@@ -80,6 +80,8 @@ p {
   padding: 4rem 2rem;
   cursor: pointer;
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .upload-label {
@@ -90,7 +92,7 @@ p {
 }
 
 /* Hide the default file input button */
-#fileUpload {
+#file-upload {
   display: none;
 }
 
