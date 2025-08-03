@@ -1,489 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AudioSplit AI - Multi-Tool Audio Editor</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Feather Icons -->
-    <script src="https://unpkg.com/feather-icons"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AudioSplit | Vocal Remover</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background-color: #0e0e1a;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+    }
 
-    <style>
-        /* Custom styles for the page */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* A very light gray */
-            scroll-behavior: smooth;
-        }
-        .primary-accent-bg {
-            background-color: #4f46e5; /* Electric Indigo */
-        }
-        .primary-accent-text {
-            color: #4f46e5;
-        }
-        .primary-accent-border {
-            border-color: #4f46e5;
-        }
-        .secondary-accent-bg {
-            background-color: #e0e7ff; /* Light Indigo */
-        }
-        .secondary-accent-text {
-            color: #4338ca; /* Darker Indigo */
-        }
-        .upload-area {
-            transition: all 0.3s ease-in-out;
-            cursor: pointer;
-        }
-        .upload-area.drag-over {
-            border-color: #4f46e5;
-            background-color: #f0f2fe;
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
-        }
-        /* Accordion styles */
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-in-out;
-        }
-        .accordion-button[aria-expanded="true"] .accordion-icon {
-            transform: rotate(180deg);
-        }
-        .accordion-icon {
-            transition: transform 0.3s ease;
-        }
-        /* Subtle animation for buttons */
-        .btn-animated {
-            transition: all 0.2s ease;
-        }
-        .btn-animated:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        /* Active nav link style */
-        nav a.active {
-            color: #4f46e5;
-            font-weight: 700;
-        }
-    </style>
+    .upload-container {
+      border: 2px dashed #00ffff;
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .upload-container.hover {
+      background-color: rgba(0, 255, 255, 0.1);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .browse-label {
+      display: inline-block;
+      background: #00ffff;
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .browse-label:hover {
+      background: #00cccc;
+    }
+
+    .drag-text {
+      margin-top: 1rem;
+      font-size: 1rem;
+      opacity: 0.7;
+    }
+
+    .file-name {
+      margin-top: 1rem;
+      color: #fff;
+    }
+  </style>
 </head>
-<body class="text-gray-800">
+<body>
+  <div class="upload-container" id="upload-area">
+    <h2>🎵 Drop or Browse Audio Files</h2>
+    <input type="file" id="fileElem" accept="audio/*" class="file-input" />
+    <label for="fileElem" class="browse-label">Browse Files</label>
+    <p class="drag-text">or drag & drop your audio here</p>
+    <div class="file-name" id="file-name"></div>
+  </div>
 
-    <!-- Header/Navigation Bar -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <a href="#" class="flex items-center space-x-2" onclick="location.reload()">
-                    <svg class="h-8 w-8 primary-accent-text" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 1a11 11 0 1011 11A11.013 11.013 0 0012 1zm0 20a9 9 0 119-9 9.01 9.01 0 01-9 9z"/>
-                        <path d="M12 6a.997.997 0 00-1 .992v8.016a1 1 0 002 0V6.992A.997.997 0 0012 6zM8 9a1 1 0 00-1 1v4a1 1 0 002 0v-4a1 1 0 00-1-1zm8 0a1 1 0 00-1 1v4a1 1 0 002 0v-4a1 1 0 00-1-1z"/>
-                    </svg>
-                    <span class="text-2xl font-bold text-gray-900">AudioSplit AI</span>
-                </a>
+  <script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('fileElem');
+    const fileNameDisplay = document.getElementById('file-name');
 
-                <!-- Desktop Navigation -->
-                <nav id="desktop-nav" class="hidden lg:flex items-center space-x-8">
-                    <a href="#" data-tool="vocal-remover" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Vocal Remover</a>
-                    <a href="#" data-tool="karaoke-maker" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Karaoke Maker</a>
-                    <a href="#" data-tool="audio-cutter" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Audio Cutter</a>
-                    <a href="#" data-tool="pitch-changer" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Pitch Changer</a>
-                    <a href="#" data-tool="key-bpm-finder" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Key & BPM Finder</a>
-                    <a href="#" data-tool="support" class="text-gray-600 hover:primary-accent-text font-medium transition-colors">Support</a>
-                </nav>
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+        // Handle file upload logic here
+      }
+    });
 
-                <!-- Mobile Menu Button -->
-                <div class="lg:hidden">
-                    <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                        <i data-feather="menu" class="h-6 w-6"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden px-6 pb-4">
-            <a href="#" data-tool="vocal-remover" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Vocal Remover</a>
-            <a href="#" data-tool="karaoke-maker" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Karaoke Maker</a>
-            <a href="#" data-tool="audio-cutter" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Audio Cutter</a>
-            <a href="#" data-tool="pitch-changer" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Pitch Changer</a>
-            <a href="#" data-tool="key-bpm-finder" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Key & BPM Finder</a>
-            <a href="#" data-tool="support" class="block py-2 text-gray-600 hover:primary-accent-text font-medium">Support</a>
-        </div>
-    </header>
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('hover');
+    });
 
-    <main>
-        <!-- Tool Section -->
-        <section id="tool-section" class="py-20 md:py-32 relative overflow-hidden">
-            <div class="container mx-auto px-6 text-center relative z-10">
-                <h1 id="tool-title" class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
-                    Vocal Remover
-                </h1>
-                <p id="tool-subtitle" class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                    Powerful and free online tool to isolate vocals or instruments from any song using advanced AI.
-                </p>
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('hover');
+    });
 
-                <!-- Upload Area - REBUILT WITH USER'S PROVIDED LOGIC -->
-                <div id="upload-area" class="mt-12 max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 border-2 border-dashed border-gray-300">
-                    <!-- This input is now controlled by the container div -->
-                    <input id="file-upload" type="file" class="hidden" accept="audio/*">
-                    
-                    <!-- Initial View -->
-                    <div id="initial-upload-view">
-                        <div class="flex flex-col items-center justify-center space-y-4 pointer-events-none">
-                            <div class="p-4 rounded-full secondary-accent-bg">
-                                <i data-feather="upload-cloud" class="h-10 w-10 secondary-accent-text"></i>
-                            </div>
-                            <p class="text-lg font-semibold text-gray-700">
-                                <strong class="primary-accent-text">Click to Browse</strong> or Drag & Drop
-                            </p>
-                            <p class="text-gray-500">MP3, WAV, FLAC, M4A - Max 50MB</p>
-                        </div>
-                    </div>
-                    <!-- File Selected View -->
-                    <div id="file-selected-view" class="hidden">
-                        <div class="flex flex-col items-center justify-center space-y-4">
-                            <div class="p-4 rounded-full bg-green-100">
-                                <i data-feather="check-circle" class="h-10 w-10 text-green-600"></i>
-                            </div>
-                            <p class="text-lg font-semibold text-gray-700">File Selected</p>
-                            <p id="file-name-display" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-lg text-sm font-mono"></p>
-                            <button id="start-processing-btn" class="btn-animated mt-4 inline-block primary-accent-bg text-white font-bold py-3 px-12 rounded-full shadow-md hover:shadow-lg">
-                                Start Processing
-                            </button>
-                            <button id="change-file-btn" class="text-sm text-gray-500 hover:primary-accent-text mt-2">Choose a different file</button>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Waveform Animation Canvas -->
-                <canvas id="waveform-canvas" class="absolute top-0 left-0 w-full h-full opacity-10 z-0"></canvas>
-            </div>
-        </section>
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('hover');
 
-        <!-- Processing Preview Section (Initially Hidden) -->
-        <section id="processing-section" class="hidden py-16 bg-white">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-900">Processing your track...</h2>
-                <p class="mt-2 text-gray-600">Our AI is working its magic. This should only take a moment.</p>
-                <div class="max-w-md mx-auto mt-8">
-                    <div class="w-full bg-gray-200 rounded-full h-4">
-                        <div id="progress-bar" class="primary-accent-bg h-4 rounded-full transition-all duration-500" style="width: 10%"></div>
-                    </div>
-                    <p id="progress-text" class="mt-3 text-lg font-semibold primary-accent-text">10%</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Results Section (Initially Hidden with multiple result types) -->
-        <section id="results-section" class="hidden py-20">
-            <div class="container mx-auto px-6">
-                <!-- Vocal Remover / Karaoke Maker Results -->
-                <div id="vocal-remover-results" data-result-type>
-                    <div class="text-center mb-12">
-                         <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Your Tracks are Ready!</h2>
-                         <p class="mt-2 text-gray-600">Listen to the separated audio below.</p>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                        <div class="bg-white p-6 rounded-2xl shadow-md">
-                            <h3 class="text-xl font-semibold mb-4 flex items-center"><i data-feather="music" class="mr-2 h-5 w-5"></i> Instrumental</h3>
-                            <div class="bg-gray-100 p-4 rounded-lg flex items-center space-x-4"><button class="p-2 rounded-full primary-accent-bg text-white"><i data-feather="play" class="h-6 w-6"></i></button><div class="w-full bg-gray-300 h-2 rounded-full"></div></div>
-                             <button class="mt-4 w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"><i data-feather="download" class="mr-2 h-5 w-5"></i> Download Instrumental</button>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-md">
-                            <h3 class="text-xl font-semibold mb-4 flex items-center"><i data-feather="mic" class="mr-2 h-5 w-5"></i> Vocals</h3>
-                            <div class="bg-gray-100 p-4 rounded-lg flex items-center space-x-4"><button class="p-2 rounded-full primary-accent-bg text-white"><i data-feather="play" class="h-6 w-6"></i></button><div class="w-full bg-gray-300 h-2 rounded-full"></div></div>
-                            <button class="mt-4 w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"><i data-feather="download" class="mr-2 h-5 w-5"></i> Download Vocals</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Key & BPM Finder Results -->
-                <div id="key-bpm-finder-results" class="hidden" data-result-type>
-                    <div class="text-center mb-12">
-                         <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Analysis Complete!</h2>
-                         <p class="mt-2 text-gray-600">Here's the musical key and tempo of your song.</p>
-                    </div>
-                    <div class="flex flex-col md:flex-row justify-center items-center gap-8 max-w-2xl mx-auto">
-                        <div class="bg-white p-8 rounded-2xl shadow-md text-center w-full md:w-1/2">
-                            <h3 class="text-lg font-medium text-gray-500">KEY</h3>
-                            <p class="text-5xl font-bold primary-accent-text mt-2">C# Minor</p>
-                        </div>
-                         <div class="bg-white p-8 rounded-2xl shadow-md text-center w-full md:w-1/2">
-                            <h3 class="text-lg font-medium text-gray-500">BPM</h3>
-                            <p class="text-5xl font-bold primary-accent-text mt-2">128</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Placeholder results for other tools -->
-                <div id="audio-cutter-results" class="hidden text-center" data-result-type>... Audio Cutter results UI ...</div>
-                <div id="pitch-changer-results" class="hidden text-center" data-result-type>... Pitch Changer results UI ...</div>
-
-                 <div class="text-center mt-12">
-                    <button id="start-over-btn" class="btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
-                        Process Another Song
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Overview Grid -->
-        <section class="py-20 bg-white border-t border-gray-200">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Why Choose Us?</h2>
-                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">A powerful, simple, and accessible tool for everyone.</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Features... -->
-                    <div class="text-center p-6"><div class="inline-block p-4 rounded-full secondary-accent-bg mb-4"><i data-feather="gift" class="h-8 w-8 secondary-accent-text"></i></div><h3 class="text-xl font-semibold mb-2">100% Free to Use</h3><p class="text-gray-600">No hidden fees or subscriptions. Separate as many songs as you like.</p></div>
-                    <div class="text-center p-6"><div class="inline-block p-4 rounded-full secondary-accent-bg mb-4"><i data-feather="zap" class="h-8 w-8 secondary-accent-text"></i></div><h3 class="text-xl font-semibold mb-2">Fast AI Processing</h3><p class="text-gray-600">Our AI model processes your audio in seconds, not minutes.</p></div>
-                    <div class="text-center p-6"><div class="inline-block p-4 rounded-full secondary-accent-bg mb-4"><i data-feather="user-check" class="h-8 w-8 secondary-accent-text"></i></div><h3 class="text-xl font-semibold mb-2">No Sign-up Required</h3><p class="text-gray-600">Get straight to business. No accounts or logins needed.</p></div>
-                    <div class="text-center p-6"><div class="inline-block p-4 rounded-full secondary-accent-bg mb-4"><i data-feather="hard-drive" class="h-8 w-8 secondary-accent-text"></i></div><h3 class="text-xl font-semibold mb-2">Lossless Audio Support</h3><p class="text-gray-600">Upload high-quality files like WAV and FLAC for the best results.</p></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQ Section -->
-        <section id="faq-section" class="py-20">
-            <div class="container mx-auto px-6 max-w-4xl">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Frequently Asked Questions</h2>
-                </div>
-                <div class="space-y-4">
-                    <!-- FAQ Items... -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>How does the vocal remover work?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">Our tool uses a sophisticated Artificial Intelligence model trained on a massive dataset of music. It has learned to identify the patterns and frequencies associated with human vocals versus instruments, allowing it to precisely separate them into two distinct tracks.</div></div></div>
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>What file types are supported?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">We currently support the most common audio formats, including MP3, WAV, FLAC, and M4A. For the best quality results, we recommend uploading a lossless format like WAV or FLAC if you have it.</div></div></div>
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>Is this service really free?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">Yes, 100%. Our basic vocal separation service is completely free to use without any limitations on the number of files you. We believe in making powerful tools accessible to everyone.</div></div></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400">
-        <div class="container mx-auto px-6 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <p class="text-sm">&copy; 2024 AudioSplit AI. All Rights Reserved.</p>
-                <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                    <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
-                    <a href="#" class="hover:text-white transition-colors">Contact</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Feather Icons Initialization ---
-            feather.replace();
-
-            // --- App State and Tool Definitions ---
-            const toolDefinitions = {
-                'vocal-remover': { title: 'Vocal Remover', subtitle: 'Separate voice from music using AI.', resultsId: 'vocal-remover-results' },
-                'karaoke-maker': { title: 'Karaoke Maker', subtitle: 'Create instrumental tracks for your next karaoke session.', resultsId: 'vocal-remover-results' },
-                'audio-cutter': { title: 'Audio Cutter', subtitle: 'Trim or cut any audio file with precision.', resultsId: 'audio-cutter-results' },
-                'pitch-changer': { title: 'Pitch Changer', subtitle: 'Change the pitch of your audio without affecting the tempo.', resultsId: 'pitch-changer-results' },
-                'key-bpm-finder': { title: 'Key & BPM Finder', subtitle: 'Instantly find the key and tempo of any song.', resultsId: 'key-bpm-finder-results' },
-                'support': { title: 'Support & FAQ', subtitle: 'Find answers to common questions.' }
-            };
-            let activeTool = 'vocal-remover';
-
-            // --- DOM Elements ---
-            const toolSection = document.getElementById('tool-section');
-            const processingSection = document.getElementById('processing-section');
-            const resultsSection = document.getElementById('results-section');
-            const uploadArea = document.getElementById('upload-area');
-            const fileUploadInput = document.getElementById('file-upload');
-            const toolTitle = document.getElementById('tool-title');
-            const toolSubtitle = document.getElementById('tool-subtitle');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const initialUploadView = document.getElementById('initial-upload-view');
-            const fileSelectedView = document.getElementById('file-selected-view');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            const startProcessingBtn = document.getElementById('start-processing-btn');
-            const changeFileBtn = document.getElementById('change-file-btn');
-            
-            // --- Navigation Logic ---
-            function switchTool(toolKey) {
-                if (!toolDefinitions[toolKey]) return;
-                activeTool = toolKey;
-
-                if (toolKey === 'support') {
-                    document.getElementById('faq-section').scrollIntoView({ behavior: 'smooth' });
-                    return;
-                }
-
-                const toolData = toolDefinitions[toolKey];
-                toolTitle.textContent = toolData.title;
-                toolSubtitle.textContent = toolData.subtitle;
-                
-                document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
-                    link.classList.toggle('active', link.dataset.tool === toolKey);
-                });
-                
-                resetToUploadView();
-            }
-            
-            function resetToUploadView() {
-                toolSection.classList.remove('hidden');
-                processingSection.classList.add('hidden');
-                resultsSection.classList.add('hidden');
-                fileSelectedView.classList.add('hidden');
-                initialUploadView.classList.remove('hidden');
-                fileUploadInput.value = ''; // Clear file input
-            }
-
-            document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    switchTool(e.target.dataset.tool);
-                    document.getElementById('mobile-menu').classList.add('hidden');
-                });
-            });
-
-            switchTool('vocal-remover');
-
-            document.getElementById('mobile-menu-button').addEventListener('click', () => {
-                document.getElementById('mobile-menu').classList.toggle('hidden');
-            });
-
-            document.querySelectorAll('.accordion-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-                    button.setAttribute('aria-expanded', !isExpanded);
-                    const content = button.parentElement.nextElementSibling;
-                    content.style.maxHeight = isExpanded ? null : content.scrollHeight + 'px';
-                });
-            });
-
-            // --- NEW, ROBUST UPLOAD LOGIC ---
-            
-            // Open file dialog on click
-            uploadArea.addEventListener("click", (e) => {
-                // Stop the click from propagating to buttons inside the 'file-selected-view'
-                if (e.target.id === 'start-processing-btn' || e.target.id === 'change-file-btn') {
-                    return;
-                }
-                fileUploadInput.click()
-            });
-
-            // Handle file selection from dialog
-            fileUploadInput.addEventListener("change", () => {
-                if (fileUploadInput.files.length > 0) {
-                    handleFiles(fileUploadInput.files);
-                }
-            });
-
-            // Add drag-over styling
-            uploadArea.addEventListener("dragover", (e) => {
-                e.preventDefault();
-                uploadArea.classList.add("drag-over");
-            });
-
-            uploadArea.addEventListener("dragleave", () => {
-                uploadArea.classList.remove("drag-over");
-            });
-
-            // Handle dropped files
-            uploadArea.addEventListener("drop", (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove("drag-over");
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && files[0].type.startsWith("audio/")) {
-                    fileUploadInput.files = files; // Sync the dropped file with the input
-                    handleFiles(files);
-                } else {
-                    alert("Please drop a valid audio file.");
-                }
-            });
-
-            // --- App Flow Logic ---
-            function handleFiles(files) {
-                if (files.length > 0) {
-                    fileNameDisplay.textContent = files[0].name;
-                    initialUploadView.classList.add('hidden');
-                    fileSelectedView.classList.remove('hidden');
-                }
-            }
-            
-            function startProcessing() {
-                toolSection.classList.add('hidden');
-                processingSection.classList.remove('hidden');
-                resultsSection.classList.add('hidden');
-                simulateProcessing();
-            }
-
-            function showResults() {
-                processingSection.classList.add('hidden');
-                resultsSection.classList.remove('hidden');
-                document.querySelectorAll('[data-result-type]').forEach(div => div.classList.add('hidden'));
-                const resultsId = toolDefinitions[activeTool].resultsId;
-                if (document.getElementById(resultsId)) {
-                    document.getElementById(resultsId).classList.remove('hidden');
-                }
-            }
-
-            function simulateProcessing() {
-                let progress = 0;
-                progressBar.style.width = '0%';
-                progressText.textContent = '0%';
-                const interval = setInterval(() => {
-                    progress += Math.floor(Math.random() * 10) + 5;
-                    if (progress >= 100) {
-                        progress = 100;
-                        clearInterval(interval);
-                        setTimeout(showResults, 500);
-                    }
-                    progressBar.style.width = progress + '%';
-                    progressText.textContent = progress + '%';
-                }, 300);
-            }
-            
-            startProcessingBtn.addEventListener('click', startProcessing);
-            
-            changeFileBtn.addEventListener('click', () => {
-                fileUploadInput.click(); 
-            });
-            
-            document.getElementById('start-over-btn').addEventListener('click', resetToUploadView);
-
-            // --- Hero Section Waveform Animation ---
-            const canvas = document.getElementById('waveform-canvas');
-            const ctx = canvas.getContext('2d');
-            let w, h, time = 0;
-            function resizeCanvas() { w = canvas.width = canvas.offsetWidth; h = canvas.height = canvas.offsetHeight; }
-            function animateWaveform() {
-                requestAnimationFrame(animateWaveform);
-                ctx.clearRect(0, 0, w, h);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
-                ctx.beginPath();
-                const sliceWidth = w / 256;
-                let x = 0;
-                for(let i = 0; i < 256; i++) {
-                    const v = 0.5 + Math.sin(i * 0.1 + time) * 0.2 + Math.sin(i * 0.05 + time * 0.5) * 0.2;
-                    const y = v * h / 2;
-                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                    x += sliceWidth;
-                }
-                ctx.lineTo(w, h / 2);
-                ctx.stroke();
-                time += 0.03;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            animateWaveform();
-        });
-    </script>
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        fileNameDisplay.textContent = `Dropped file: ${files[0].name}`;
+        // Handle file upload logic here
+      }
+    });
+  </script>
 </body>
 </html>
