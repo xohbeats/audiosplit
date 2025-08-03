@@ -263,7 +263,7 @@
                     <!-- FAQ Items... -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>How does the vocal remover work?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">Our tool uses a sophisticated Artificial Intelligence model trained on a massive dataset of music. It has learned to identify the patterns and frequencies associated with human vocals versus instruments, allowing it to precisely separate them into two distinct tracks.</div></div></div>
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>What file types are supported?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">We currently support the most common audio formats, including MP3, WAV, FLAC, and M4A. For the best quality results, we recommend uploading a lossless format like WAV or FLAC if you have it.</div></div></div>
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>Is this service really free?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">Yes, 100%. Our basic vocal separation service is completely free to use without any limitations on the number of files you can process. We believe in making powerful tools accessible to everyone.</div></div></div>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200"><h2><button type="button" class="accordion-button flex items-center justify-between w-full p-6 font-semibold text-left text-gray-800" aria-expanded="false"><span>Is this service really free?</span><i data-feather="chevron-down" class="accordion-icon h-5 w-5"></i></button></h2><div class="accordion-content"><div class="p-6 pt-0 text-gray-600">Yes, 100%. Our basic vocal separation service is completely free to use without any limitations on the number of files you. We believe in making powerful tools accessible to everyone.</div></div></div>
                 </div>
             </div>
         </section>
@@ -284,185 +284,186 @@
     </footer>
 
     <script>
-        // --- Feather Icons Initialization ---
-        feather.replace();
+        // **FIX**: Wrap all script logic in DOMContentLoaded to ensure the page is ready.
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Feather Icons Initialization ---
+            feather.replace();
 
-        // --- App State and Tool Definitions ---
-        const toolDefinitions = {
-            'vocal-remover': { title: 'Vocal Remover', subtitle: 'Separate voice from music using AI.', resultsId: 'vocal-remover-results' },
-            'karaoke-maker': { title: 'Karaoke Maker', subtitle: 'Create instrumental tracks for your next karaoke session.', resultsId: 'vocal-remover-results' },
-            'audio-cutter': { title: 'Audio Cutter', subtitle: 'Trim or cut any audio file with precision.', resultsId: 'audio-cutter-results' },
-            'pitch-changer': { title: 'Pitch Changer', subtitle: 'Change the pitch of your audio without affecting the tempo.', resultsId: 'pitch-changer-results' },
-            'key-bpm-finder': { title: 'Key & BPM Finder', subtitle: 'Instantly find the key and tempo of any song.', resultsId: 'key-bpm-finder-results' },
-            'support': { title: 'Support & FAQ', subtitle: 'Find answers to common questions.' }
-        };
-        let activeTool = 'vocal-remover';
+            // --- App State and Tool Definitions ---
+            const toolDefinitions = {
+                'vocal-remover': { title: 'Vocal Remover', subtitle: 'Separate voice from music using AI.', resultsId: 'vocal-remover-results' },
+                'karaoke-maker': { title: 'Karaoke Maker', subtitle: 'Create instrumental tracks for your next karaoke session.', resultsId: 'vocal-remover-results' },
+                'audio-cutter': { title: 'Audio Cutter', subtitle: 'Trim or cut any audio file with precision.', resultsId: 'audio-cutter-results' },
+                'pitch-changer': { title: 'Pitch Changer', subtitle: 'Change the pitch of your audio without affecting the tempo.', resultsId: 'pitch-changer-results' },
+                'key-bpm-finder': { title: 'Key & BPM Finder', subtitle: 'Instantly find the key and tempo of any song.', resultsId: 'key-bpm-finder-results' },
+                'support': { title: 'Support & FAQ', subtitle: 'Find answers to common questions.' }
+            };
+            let activeTool = 'vocal-remover';
 
-        // --- DOM Elements ---
-        const toolSection = document.getElementById('tool-section');
-        const processingSection = document.getElementById('processing-section');
-        const resultsSection = document.getElementById('results-section');
-        const uploadArea = document.getElementById('upload-area');
-        const fileUploadInput = document.getElementById('file-upload');
-        const toolTitle = document.getElementById('tool-title');
-        const toolSubtitle = document.getElementById('tool-subtitle');
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const initialUploadView = document.getElementById('initial-upload-view');
-        const fileSelectedView = document.getElementById('file-selected-view');
-        const fileNameDisplay = document.getElementById('file-name-display');
-        const startProcessingBtn = document.getElementById('start-processing-btn');
-        const changeFileBtn = document.getElementById('change-file-btn');
-        const browseFilesSpan = document.getElementById('browse-files-span');
-        
-        // --- Navigation Logic ---
-        function switchTool(toolKey) {
-            if (!toolDefinitions[toolKey]) return;
-            activeTool = toolKey;
-
-            if (toolKey === 'support') {
-                document.getElementById('faq-section').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-
-            const toolData = toolDefinitions[toolKey];
-            toolTitle.textContent = toolData.title;
-            toolSubtitle.textContent = toolData.subtitle;
+            // --- DOM Elements ---
+            const toolSection = document.getElementById('tool-section');
+            const processingSection = document.getElementById('processing-section');
+            const resultsSection = document.getElementById('results-section');
+            const uploadArea = document.getElementById('upload-area');
+            const fileUploadInput = document.getElementById('file-upload');
+            const toolTitle = document.getElementById('tool-title');
+            const toolSubtitle = document.getElementById('tool-subtitle');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const initialUploadView = document.getElementById('initial-upload-view');
+            const fileSelectedView = document.getElementById('file-selected-view');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            const startProcessingBtn = document.getElementById('start-processing-btn');
+            const changeFileBtn = document.getElementById('change-file-btn');
+            const browseFilesSpan = document.getElementById('browse-files-span');
             
-            document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
-                link.classList.toggle('active', link.dataset.tool === toolKey);
-            });
-            
-            resetToUploadView();
-        }
-        
-        function resetToUploadView() {
-            toolSection.classList.remove('hidden');
-            processingSection.classList.add('hidden');
-            resultsSection.classList.add('hidden');
-            fileSelectedView.classList.add('hidden');
-            initialUploadView.classList.remove('hidden');
-            fileUploadInput.value = ''; // Clear file input
-        }
+            // --- Navigation Logic ---
+            function switchTool(toolKey) {
+                if (!toolDefinitions[toolKey]) return;
+                activeTool = toolKey;
 
-        document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTool(e.target.dataset.tool);
-                document.getElementById('mobile-menu').classList.add('hidden');
-            });
-        });
-
-        switchTool('vocal-remover');
-
-        document.getElementById('mobile-menu-button').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
-
-        document.querySelectorAll('.accordion-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const isExpanded = button.getAttribute('aria-expanded') === 'true';
-                button.setAttribute('aria-expanded', !isExpanded);
-                const content = button.parentElement.nextElementSibling;
-                content.style.maxHeight = isExpanded ? null : content.scrollHeight + 'px';
-            });
-        });
-
-        // --- File Handling & Processing Simulation ---
-        function handleFiles(files) {
-            if (files.length > 0) {
-                fileNameDisplay.textContent = files[0].name;
-                initialUploadView.classList.add('hidden');
-                fileSelectedView.classList.remove('hidden');
-            }
-        }
-        
-        function startProcessing() {
-            toolSection.classList.add('hidden');
-            processingSection.classList.remove('hidden');
-            resultsSection.classList.add('hidden');
-            simulateProcessing();
-        }
-
-        function showResults() {
-            processingSection.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
-            document.querySelectorAll('[data-result-type]').forEach(div => div.classList.add('hidden'));
-            const resultsId = toolDefinitions[activeTool].resultsId;
-            if (document.getElementById(resultsId)) {
-                document.getElementById(resultsId).classList.remove('hidden');
-            }
-        }
-
-        function simulateProcessing() {
-            let progress = 0;
-            progressBar.style.width = '0%';
-            progressText.textContent = '0%';
-            const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 10) + 5;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
-                    setTimeout(showResults, 500);
+                if (toolKey === 'support') {
+                    document.getElementById('faq-section').scrollIntoView({ behavior: 'smooth' });
+                    return;
                 }
-                progressBar.style.width = progress + '%';
-                progressText.textContent = progress + '%';
-            }, 300);
-        }
-        
-        startProcessingBtn.addEventListener('click', startProcessing);
-        
-        // **FIX**: Add direct click listener for robust file dialog opening
-        browseFilesSpan.addEventListener('click', () => {
-            fileUploadInput.click();
-        });
 
-        changeFileBtn.addEventListener('click', () => {
-            fileUploadInput.click(); // Re-open file dialog
-        });
-        
-        document.getElementById('start-over-btn').addEventListener('click', resetToUploadView);
-
-        // Drag and Drop Listeners
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
-            document.body.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
-        });
-        uploadArea.addEventListener('dragenter', () => uploadArea.classList.add('drag-over'));
-        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-        uploadArea.addEventListener('drop', (e) => {
-            uploadArea.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
-        });
-        fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-        // --- Hero Section Waveform Animation ---
-        const canvas = document.getElementById('waveform-canvas');
-        const ctx = canvas.getContext('2d');
-        let w, h, time = 0;
-        function resizeCanvas() { w = canvas.width = canvas.offsetWidth; h = canvas.height = canvas.offsetHeight; }
-        function animateWaveform() {
-            requestAnimationFrame(animateWaveform);
-            ctx.clearRect(0, 0, w, h);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
-            ctx.beginPath();
-            const sliceWidth = w / 256;
-            let x = 0;
-            for(let i = 0; i < 256; i++) {
-                const v = 0.5 + Math.sin(i * 0.1 + time) * 0.2 + Math.sin(i * 0.05 + time * 0.5) * 0.2;
-                const y = v * h / 2;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                x += sliceWidth;
+                const toolData = toolDefinitions[toolKey];
+                toolTitle.textContent = toolData.title;
+                toolSubtitle.textContent = toolData.subtitle;
+                
+                document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
+                    link.classList.toggle('active', link.dataset.tool === toolKey);
+                });
+                
+                resetToUploadView();
             }
-            ctx.lineTo(w, h / 2);
-            ctx.stroke();
-            time += 0.03;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        animateWaveform();
+            
+            function resetToUploadView() {
+                toolSection.classList.remove('hidden');
+                processingSection.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+                fileSelectedView.classList.add('hidden');
+                initialUploadView.classList.remove('hidden');
+                fileUploadInput.value = ''; // Clear file input
+            }
 
+            document.querySelectorAll('#desktop-nav a, #mobile-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTool(e.target.dataset.tool);
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+
+            switchTool('vocal-remover');
+
+            document.getElementById('mobile-menu-button').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('.accordion-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                    button.setAttribute('aria-expanded', !isExpanded);
+                    const content = button.parentElement.nextElementSibling;
+                    content.style.maxHeight = isExpanded ? null : content.scrollHeight + 'px';
+                });
+            });
+
+            // --- File Handling & Processing Simulation ---
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    fileNameDisplay.textContent = files[0].name;
+                    initialUploadView.classList.add('hidden');
+                    fileSelectedView.classList.remove('hidden');
+                }
+            }
+            
+            function startProcessing() {
+                toolSection.classList.add('hidden');
+                processingSection.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                simulateProcessing();
+            }
+
+            function showResults() {
+                processingSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                document.querySelectorAll('[data-result-type]').forEach(div => div.classList.add('hidden'));
+                const resultsId = toolDefinitions[activeTool].resultsId;
+                if (document.getElementById(resultsId)) {
+                    document.getElementById(resultsId).classList.remove('hidden');
+                }
+            }
+
+            function simulateProcessing() {
+                let progress = 0;
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+                const interval = setInterval(() => {
+                    progress += Math.floor(Math.random() * 10) + 5;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        setTimeout(showResults, 500);
+                    }
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = progress + '%';
+                }, 300);
+            }
+            
+            startProcessingBtn.addEventListener('click', startProcessing);
+            
+            browseFilesSpan.addEventListener('click', () => {
+                fileUploadInput.click();
+            });
+
+            changeFileBtn.addEventListener('click', () => {
+                fileUploadInput.click(); // Re-open file dialog
+            });
+            
+            document.getElementById('start-over-btn').addEventListener('click', resetToUploadView);
+
+            // Drag and Drop Listeners
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
+                document.body.addEventListener(eventName, e => {e.preventDefault(); e.stopPropagation();}, false);
+            });
+            uploadArea.addEventListener('dragenter', () => uploadArea.classList.add('drag-over'));
+            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+            uploadArea.addEventListener('drop', (e) => {
+                uploadArea.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+            fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+            // --- Hero Section Waveform Animation ---
+            const canvas = document.getElementById('waveform-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, time = 0;
+            function resizeCanvas() { w = canvas.width = canvas.offsetWidth; h = canvas.height = canvas.offsetHeight; }
+            function animateWaveform() {
+                requestAnimationFrame(animateWaveform);
+                ctx.clearRect(0, 0, w, h);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(79, 70, 229, 0.3)';
+                ctx.beginPath();
+                const sliceWidth = w / 256;
+                let x = 0;
+                for(let i = 0; i < 256; i++) {
+                    const v = 0.5 + Math.sin(i * 0.1 + time) * 0.2 + Math.sin(i * 0.05 + time * 0.5) * 0.2;
+                    const y = v * h / 2;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    x += sliceWidth;
+                }
+                ctx.lineTo(w, h / 2);
+                ctx.stroke();
+                time += 0.03;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            animateWaveform();
+        });
     </script>
 </body>
 </html>
