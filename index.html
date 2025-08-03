@@ -3,108 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AudioSplit | Vocal Remover</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      font-family: 'Orbitron', sans-serif;
-      background-color: #0e0e1a;
-      color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 2rem;
-    }
-
-    .upload-container {
-      border: 2px dashed #00ffff;
-      border-radius: 12px;
-      padding: 3rem;
-      text-align: center;
-      width: 100%;
-      max-width: 500px;
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .upload-container.hover {
-      background-color: rgba(0, 255, 255, 0.1);
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .browse-label {
-      display: inline-block;
-      background: #00ffff;
-      color: #000;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-
-    .browse-label:hover {
-      background: #00cccc;
-    }
-
-    .drag-text {
-      margin-top: 1rem;
-      font-size: 1rem;
-      opacity: 0.7;
-    }
-
-    .file-name {
-      margin-top: 1rem;
-      color: #fff;
-    }
-  </style>
+  <title>Splitter AI</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="upload-container" id="upload-area">
-    <h2>🎵 Drop or Browse Audio Files</h2>
-    <input type="file" id="fileElem" accept="audio/*" class="file-input" />
-    <label for="fileElem" class="browse-label">Browse Files</label>
-    <p class="drag-text">or drag & drop your audio here</p>
-    <div class="file-name" id="file-name"></div>
-  </div>
+  <header>
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Vocal Remover</a></li>
+        <li><a href="splitter.html" class="active">Splitter AI</a></li>
+        <li><a href="key-bpm.html">Key & BPM Finder</a></li>
+        <li><a href="cutter.html">Audio Cutter</a></li>
+        <li><a href="joiner.html">Audio Joiner</a></li>
+        <li><a href="karaoke.html">Karaoke</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="content">
+    <h1>Splitter AI</h1>
+    <p>Split music into separated parts with AI-Powered algorithms. Upload a file to get started.</p>
+    <div class="upload-area">
+      <label for="fileUpload" class="upload-label">Browse Files or Drag & Drop</label>
+      <input type="file" id="fileUpload" accept="audio/*" />
+    </div>
+  </main>
 
   <script>
-    const uploadArea = document.getElementById('upload-area');
-    const fileInput = document.getElementById('fileElem');
-    const fileNameDisplay = document.getElementById('file-name');
-
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
-        fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
-        // Handle file upload logic here
-      }
-    });
+    const uploadArea = document.querySelector('.upload-area');
+    const inputFile = document.getElementById('fileUpload');
 
     uploadArea.addEventListener('dragover', (e) => {
       e.preventDefault();
-      uploadArea.classList.add('hover');
+      uploadArea.classList.add('dragover');
     });
 
     uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('hover');
+      uploadArea.classList.remove('dragover');
     });
 
     uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadArea.classList.remove('hover');
-
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        fileNameDisplay.textContent = `Dropped file: ${files[0].name}`;
-        // Handle file upload logic here
-      }
+      uploadArea.classList.remove('dragover');
+      inputFile.files = e.dataTransfer.files;
     });
   </script>
 </body>
