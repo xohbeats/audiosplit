@@ -141,12 +141,11 @@
                             <div class="py-2">
                                 <span class="text-gray-400">or</span>
                             </div>
-                            <div class="cursor-pointer">
-                                <span id="browse-files-span" class="btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
-                                    Browse Files
-                                </span>
-                                <input id="file-upload" type="file" class="hidden" accept="audio/*">
-                            </div>
+                            <!-- **FIX**: Using a proper <label> for robust file input clicking -->
+                            <label for="file-upload" class="cursor-pointer btn-animated inline-block primary-accent-bg text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg">
+                                Browse Files
+                            </label>
+                            <input id="file-upload" type="file" class="hidden" accept="audio/*">
                         </div>
                     </div>
                     <!-- File Selected View -->
@@ -284,7 +283,6 @@
     </footer>
 
     <script>
-        // **FIX**: Wrap all script logic in DOMContentLoaded to ensure the page is ready.
         document.addEventListener('DOMContentLoaded', () => {
             // --- Feather Icons Initialization ---
             feather.replace();
@@ -315,7 +313,6 @@
             const fileNameDisplay = document.getElementById('file-name-display');
             const startProcessingBtn = document.getElementById('start-processing-btn');
             const changeFileBtn = document.getElementById('change-file-btn');
-            const browseFilesSpan = document.getElementById('browse-files-span');
             
             // --- Navigation Logic ---
             function switchTool(toolKey) {
@@ -414,12 +411,9 @@
             
             startProcessingBtn.addEventListener('click', startProcessing);
             
-            browseFilesSpan.addEventListener('click', () => {
-                fileUploadInput.click();
-            });
-
+            // This button now re-triggers the file input by its ID
             changeFileBtn.addEventListener('click', () => {
-                fileUploadInput.click(); // Re-open file dialog
+                fileUploadInput.click(); 
             });
             
             document.getElementById('start-over-btn').addEventListener('click', resetToUploadView);
@@ -435,6 +429,8 @@
                 uploadArea.classList.remove('drag-over');
                 handleFiles(e.dataTransfer.files);
             });
+            
+            // Listener for the actual file input element
             fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
             // --- Hero Section Waveform Animation ---
